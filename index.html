@@ -1,0 +1,910 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>医師コミュ Vol.01｜付箋とAIでつくる、患者さんの地図</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=Noto+Sans+JP:wght@400;500;700&family=Outfit:wght@200;300;400;500;600&display=swap">
+
+<style>
+:root{
+  --blue:#1B2AA0; --blue-2:#152080; --blue-3:#0C1250; --blue-4:#2A3AB8;
+  --paper:#F1F2F7; --paper-2:#E5E7F1; --white:#FFFFFF;
+  --ink:#0F1440; --ink-2:#3B4170; --muted:#71779F; --line:#D3D7E8;
+  --on-blue:#B6BDEE; --on-blue-2:#8C95DC; --rule:rgba(255,255,255,.2);
+  --accent:#FF5B38; --accent-soft:#FFE3DB;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:var(--blue);color:#fff;
+  font-family:"Noto Sans JP",system-ui,-apple-system,"Hiragino Kaku Gothic ProN",Meiryo,sans-serif;
+  font-size:16px;line-height:1.9;-webkit-font-smoothing:antialiased;overflow-x:hidden;
+}
+img{max-width:100%}
+.zen{font-family:"Zen Kaku Gothic New","Noto Sans JP",sans-serif}
+.out{font-family:"Outfit",ui-sans-serif,sans-serif;font-variant-numeric:tabular-nums}
+.wrap{max-width:1160px;margin:0 auto;padding:0 28px}
+.narrow{max-width:800px}
+section{padding:112px 0;position:relative}
+.paper{background:var(--paper);color:var(--ink)}
+.blue{background:var(--blue);color:#fff}
+.deep{background:var(--blue-3);color:#fff}
+
+/* ---------- section head ---------- */
+.shead{display:grid;grid-template-columns:auto 1fr;gap:0 26px;align-items:end;margin-bottom:56px}
+.shead .idx{grid-row:span 2;font-family:"Outfit",sans-serif;font-weight:200;font-size:clamp(64px,9vw,112px);line-height:.8;color:var(--accent);letter-spacing:-.02em}
+.shead .eyebrow{font-family:"Outfit",sans-serif;font-size:11px;letter-spacing:.3em;text-transform:uppercase;margin:0 0 10px;opacity:.7}
+.shead h2{font-family:"Zen Kaku Gothic New",sans-serif;font-weight:700;font-size:clamp(26px,4vw,42px);line-height:1.4;margin:0;letter-spacing:.01em;text-wrap:balance}
+.lead{font-size:15.5px;max-width:62ch;margin:-26px 0 52px}
+.paper .lead{color:var(--ink-2)}
+.blue .lead,.deep .lead{color:var(--on-blue)}
+
+/* ---------- sticky bar ---------- */
+.bar{position:fixed;top:0;left:0;right:0;z-index:80;display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding:12px 28px;background:rgba(12,18,80,.86);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--rule);transform:translateY(-100%);transition:transform .45s cubic-bezier(.19,1,.22,1)}
+.bar.show{transform:none}
+.bar .b1{display:flex;align-items:baseline;gap:14px;min-width:0}
+.bar b{font-family:"Zen Kaku Gothic New",sans-serif;font-weight:700;letter-spacing:.12em;font-size:15px;white-space:nowrap}
+.bar span{font-family:"Outfit",sans-serif;font-size:11.5px;letter-spacing:.14em;color:var(--on-blue);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar nav{display:flex;gap:22px;font-size:13px}
+.bar nav a{color:#fff;text-decoration:none;opacity:.78}
+.bar nav a:hover{opacity:1}
+.bar .mini{font-size:13px;font-weight:700;padding:8px 16px;background:var(--accent);color:var(--blue-3);text-decoration:none;white-space:nowrap}
+
+/* ---------- opening ---------- */
+.intro{position:fixed;inset:0;z-index:200;background:var(--blue);overflow:hidden;transition:transform 1.05s cubic-bezier(.76,0,.24,1)}
+.intro.out{transform:translateY(-101%)}
+.intro.gone{display:none}
+.intro-word{position:absolute;left:2.2vw;top:50%;transform:translateY(-50%);z-index:1;pointer-events:none;
+  writing-mode:vertical-rl;font-family:"Zen Kaku Gothic New",sans-serif;font-weight:900;
+  font-size:clamp(58px,min(15.5vw,16.4vh),208px);line-height:1;letter-spacing:.02em;color:#fff;white-space:nowrap}
+.intro-word span{display:block;animation:wordIn 1.15s cubic-bezier(.19,1,.22,1) both}
+@keyframes wordIn{from{opacity:0;transform:translateY(46px)}to{opacity:1;transform:none}}
+.intro-scatter{position:absolute;inset:0;z-index:2}
+.intro-scatter .chip{transition:opacity .34s ease}
+.intro-foot{position:absolute;left:0;right:0;bottom:28px;z-index:3;display:flex;justify-content:space-between;align-items:center;
+  padding:0 26px;font-family:"Outfit",sans-serif;font-size:11px;letter-spacing:.24em;color:rgba(255,255,255,.72)}
+.skip{font-family:"Outfit",sans-serif;font-size:11px;letter-spacing:.28em;background:transparent;border:1px solid rgba(255,255,255,.5);color:#fff;padding:9px 21px;cursor:pointer;transition:.2s}
+.skip:hover{background:#fff;color:var(--blue);border-color:#fff}
+.skip:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.intro-bar{position:absolute;left:0;right:0;bottom:0;height:2px;background:rgba(255,255,255,.16);z-index:3}
+.intro-bar i{display:block;height:100%;width:0;background:var(--accent);animation:fill var(--introMs,2600ms) linear forwards}
+@keyframes fill{to{width:100%}}
+body.locked{overflow:hidden}
+
+/* ---------- hero ---------- */
+.hero{position:relative;height:100svh;min-height:620px;overflow:hidden;display:flex;align-items:center;justify-content:center;padding:0}
+.hero::before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(60% 50% at 50% 55%,rgba(42,58,184,.9) 0%,rgba(27,42,160,0) 70%),
+    repeating-linear-gradient(90deg,rgba(255,255,255,.045) 0 1px,transparent 1px 96px)}
+.hero-brand{position:absolute;top:30px;left:0;right:0;z-index:3;display:flex;justify-content:space-between;align-items:baseline;padding:0 28px}
+.hero-brand b{font-family:"Zen Kaku Gothic New",sans-serif;font-weight:700;font-size:16px;letter-spacing:.14em}
+.hero-brand span{font-family:"Outfit",sans-serif;color:rgba(255,255,255,.65);font-size:11px;letter-spacing:.24em}
+.scatter{position:absolute;inset:0;z-index:1}
+.chip{position:absolute;width:184px;background:#fff;color:var(--ink);padding:13px 15px;box-shadow:0 18px 40px -18px rgba(6,10,50,.7);will-change:transform}
+.chip .k{font-family:"Zen Kaku Gothic New",sans-serif;font-weight:700;font-size:10.5px;letter-spacing:.14em;color:var(--accent);display:block;margin-bottom:4px}
+.chip .n{font-family:"Zen Kaku Gothic New",sans-serif;font-weight:500;font-size:12.5px;line-height:1.6;display:block}
+.chip .l{display:block;margin-top:8px;height:1px;background:var(--line)}
+.hero-core{position:relative;z-index:2;text-align:center;pointer-events:none;padding:0 20px}
+.hero-core .theme{display:inline-flex;align-items:center;gap:12px;font-family:"Zen Kaku Gothic New",sans-serif;font-weight:700;
+  font-size:clamp(14px,1.8vw,18px);letter-spacing:.2em;padding:9px 20px;background:var(--accent);color:var(--blue-3);margin-bottom:26px}
+.hero-core .theme i{font-style:normal;font-family:"Outfit",sans-serif;font-weight:500;font-size:.72em;letter-spacing:.24em;opacity:.8}
+.hero-core .d{font-family:"Outfit",sans-serif;font-weight:200;font-size:clamp(96px,21vw,300px);line-height:.86;letter-spacing:-.01em;
+  color:transparent;-webkit-text-stroke:1.6px rgba(255,255,255,.95);display:block}
+.hero-core .sub{font-family:"Outfit",sans-serif;font-size:clamp(11px,1.5vw,13.5px);letter-spacing:.42em;color:rgba(255,255,255,.78);margin-top:18px;text-transform:uppercase}
+.hero-core .venue{font-family:"Zen Kaku Gothic New",sans-serif;font-weight:500;font-size:clamp(13px,1.5vw,15px);letter-spacing:.2em;color:#fff;margin-top:8px}
+.cue{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);z-index:3;font-family:"Outfit",sans-serif;font-size:10px;letter-spacing:.3em;color:rgba(255,255,255,.6)}
+.cue::after{content:"";display:block;width:1px;height:34px;background:rgba(255,255,255,.4);margin:10px auto 0;transform-origin:top;animation:drop 1.9s ease-in-out infinite}
+@keyframes drop{0%{transform:scaleY(0)}45%{transform:scaleY(1)}100%{transform:scaleY(0);transform-origin:bottom}}
+
+/* boot-in */
+.hero-core>*{opacity:0;transform:translateY(22px);transition:opacity .9s ease,transform 1s cubic-bezier(.19,1,.22,1)}
+body.booted .hero-core>*{opacity:1;transform:none}
+body.booted .hero-core>*:nth-child(1){transition-delay:.15s}
+body.booted .hero-core>*:nth-child(2){transition-delay:.28s}
+body.booted .hero-core>*:nth-child(3){transition-delay:.4s}
+body.booted .hero-core>*:nth-child(4){transition-delay:.5s}
+.hero-brand,.cue{opacity:0;transition:opacity .8s ease .6s}
+body.booted .hero-brand,body.booted .cue{opacity:1}
+#scatter .chip{opacity:0;transition:opacity .7s ease}
+body.booted #scatter .chip{opacity:1}
+
+/* ---------- marquee ---------- */
+.mq{background:var(--accent);color:var(--blue-3);padding:14px 0;overflow:hidden;white-space:nowrap;border-top:1px solid var(--blue-3);border-bottom:1px solid var(--blue-3)}
+.mq+.mq{border-top:0}
+.mq .track{display:inline-flex;animation:slide 30s linear infinite;will-change:transform}
+.mq.rev{background:var(--blue-3);color:#fff}
+.mq.rev .track{animation-direction:reverse;animation-duration:36s}
+.mq span{font-family:"Zen Kaku Gothic New",sans-serif;font-weight:900;font-size:clamp(20px,3.4vw,38px);letter-spacing:.02em;padding:0 26px;display:inline-block}
+.mq span::after{content:"✳";font-size:.55em;vertical-align:middle;margin-left:26px;opacity:.7}
+.mq.rev span::after{color:var(--accent);opacity:1}
+@keyframes slide{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* ---------- statement ---------- */
+.statement{padding:128px 0 112px}
+.statement h1{font-family:"Zen Kaku Gothic New",sans-serif;font-weight:700;font-size:clamp(30px,5.6vw,64px);line-height:1.5;letter-spacing:.01em;margin:0 0 44px}
+.statement h1 .em{color:var(--accent)}
+.statement .l{display:block;overflow:hidden}
+.statement .l i{display:block;font-style:normal;transform:translateY(105%);transition:transform .9s cubic-bezier(.19,1,.22,1)}
+.statement.in .l i{transform:none}
+.statement .l:nth-child(2) i{transition-delay:.09s}
+.statement .l:nth-child(3) i{transition-delay:.18s}
+.st-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:56px;align-items:end}
+.statement p{color:var(--on-blue);font-size:16px;margin:0;word-break:auto-phrase;text-wrap:pretty}
+.meta{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--rule);margin:0}
+.meta div{padding:18px 20px 20px;border-bottom:1px solid var(--rule)}
+.meta div:nth-child(odd){border-right:1px solid var(--rule)}
+.meta dt{font-family:"Outfit",sans-serif;font-size:10px;letter-spacing:.24em;color:var(--on-blue-2);margin:0 0 6px;text-transform:uppercase}
+.meta dd{margin:0;font-size:17px;font-weight:500;letter-spacing:.02em;line-height:1.5}
+.meta dd small{font-size:12px;color:var(--on-blue)}
+
+/* ---------- issues ---------- */
+.issues{display:grid;grid-template-columns:repeat(3,1fr);border-top:2px solid var(--ink)}
+.issue{padding:34px 30px 38px 0;border-right:1px solid var(--line);position:relative}
+.issue+.issue{padding-left:30px}
+.issue:last-child{border-right:0}
+.issue .no{font-family:"Outfit",sans-serif;font-size:12px;letter-spacing:.24em;color:var(--accent);display:block;margin-bottom:26px}
+.issue h3{word-break:auto-phrase;font-family:"Zen Kaku Gothic New",sans-serif;font-weight:700;font-size:clamp(21px,2.3vw,26px);line-height:1.5;margin:0 0 16px;letter-spacing:.02em}
+.issue p{margin:0;font-size:14.5px;color:var(--ink-2);line-height:1.95}
+.issue ul{list-style:none;margin:20px 0 0;padding:16px 0 0;border-top:1px dashed var(--line);font-size:13.5px;color:var(--ink-2)}
+.issue li{position:relative;padding-left:16px;margin-bottom:4px}
+.issue li::before{content:"";position:absolute;left:0;top:.8em;width:7px;height:1px;background:var(--accent)}
+
+/* ---------- speakers ---------- */
+.spk{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.spk article{background:var(--blue-2);border:1px solid var(--rule);padding:38px 36px 40px;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.spk article::after{content:attr(data-no);position:absolute;right:-6px;top:-24px;font-family:"Outfit",sans-serif;font-weight:200;font-size:150px;line-height:1;color:rgba(255,255,255,.05);pointer-events:none}
+.spk .who{display:flex;align-items:center;gap:18px;margin-bottom:26px}
+.spk .mono{flex:none;width:64px;height:64px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--blue-3);
+  font-family:"Zen Kaku Gothic New",sans-serif;font-weight:900;font-size:26px}
+.spk article:nth-child(2) .mono{background:#fff}
+.spk h3{font-family:"Zen Kaku Gothic New",sans-serif;font-weight:700;font-size:26px;margin:0;letter-spacing:.08em;line-height:1.3}
+.spk .aff{color:var(--on-blue);font-size:13px;margin:4px 0 0;line-height:1.6}
+.spk .talk{border-top:1px solid var(--rule);padding-top:22px}
+.spk .talk small{display:block;font-family:"Outfit",sans-serif;font-size:11px;letter-spacing:.22em;color:var(--accent);margin-bottom:8px}
+.spk .talk h4{word-break:auto-phrase;font-family:"Zen Kaku Gothic New",sans-serif;font-weight:700;font-size:21px;line-height:1.55;margin:0 0 18px}
+.spk .talk ul{list-style:none;margin:0;padding:0;font-size:14.5px;color:var(--on-blue)}
+.spk .talk li{position:relative;padding:9px 0 9px 22px;border-top:1px dashed rgba(255,255,255,.14)}
+.spk .talk li::before{content:"";position:absolute;left:2px;top:1.15em;width:8px;height:8px;border:1.5px solid var(--accent);border-radius:50%}
+.spk .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto;padding-top:24px}
+.spk .tags span{font-size:11.5px;padding:3px 10px;border:1px solid var(--rule);color:var(--on-blue)}
+
+/* ---------- program ---------- */
+.tt{list-style:none;margin:0;padding:0;border-top:2px solid var(--ink)}
+.tt li{display:grid;grid-template-columns:150px 1fr 170px;gap:28px;align-items:center;padding:24px 0;border-bottom:1px solid var(--line)}
+.tt .t{font-family:"Outfit",sans-serif;font-size:15px;color:var(--muted);letter-spacing:.04em}
+.tt b{font-family:"Zen Kaku Gothic New",sans-serif;font-weight:500;font-size:18px;letter-spacing:.02em;display:block;line-height:1.6;word-break:auto-phrase;text-wrap:balance}
+.tt .d{display:block;color:var(--ink-2);font-size:13.5px;margin-top:4px;line-height:1.8}
+.tt .who{display:inline-block;font-size:11.5px;font-weight:700;color:var(--blue);background:var(--paper-2);padding:1px 8px;margin-right:6px;vertical-align:1px}
+.tt .len{display:flex;align-items:center;gap:10px}
+.tt .len i{display:block;height:6px;width:calc(var(--m) / 60 * 100%);min-width:6px;background:var(--line)}
+.tt .len em{font-style:normal;font-family:"Outfit",sans-serif;font-size:12px;color:var(--muted);white-space:nowrap}
+.tt li.key .t{color:var(--accent);font-weight:500}
+.tt li.key b{font-weight:700;font-size:21px}
+.tt li.key .len i{background:var(--accent)}
+.tt li.work{background:linear-gradient(90deg,var(--accent-soft),transparent 70%)}
+.tt li.work .len i{background:var(--blue)}
+.tt li.rest b{color:var(--muted);font-weight:400;font-size:15px}
+
+/* ---------- tool ---------- */
+.tool{display:grid;grid-template-columns:.92fr 1.08fr;gap:64px;align-items:center}
+.tool-copy p{color:var(--on-blue);font-size:15.5px;margin:0 0 26px}
+.flow{display:flex;flex-wrap:wrap;gap:0;margin:0 0 30px;border:1px solid var(--rule)}
+.flow span{flex:1 1 0;min-width:0;text-align:center;padding:13px 6px;font-family:"Zen Kaku Gothic New",sans-serif;font-weight:700;font-size:14px;position:relative}
+.flow span+span{border-left:1px solid var(--rule)}
+.flow span small{display:block;font-family:"Outfit",sans-serif;font-weight:400;font-size:9.5px;letter-spacing:.2em;color:var(--accent);margin-bottom:2px}
+.mods{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--rule);border:1px solid var(--rule)}
+.mods div{background:var(--blue-3);padding:18px 18px 20px}
+.mods b{display:block;font-family:"Zen Kaku Gothic New",sans-serif;font-size:15px;margin-bottom:4px}
+.mods span{font-size:12.5px;color:var(--on-blue);line-height:1.75;display:block}
+.next{margin:22px 0 0;font-size:13px;color:var(--on-blue);border-left:2px solid var(--accent);padding-left:14px;line-height:1.9}
+
+/* mock screen */
+.mock{background:#fff;color:var(--ink);box-shadow:0 50px 90px -40px rgba(0,0,0,.65),0 0 0 1px rgba(255,255,255,.08);transform:perspective(1600px) rotateY(-7deg) rotateX(2deg);transform-origin:left center;transition:transform .8s cubic-bezier(.19,1,.22,1)}
+.mock:hover{transform:none}
+.mock-top{display:flex;align-items:center;gap:7px;padding:10px 14px;background:var(--paper-2);border-bottom:1px solid var(--line)}
+.mock-top i{width:9px;height:9px;border-radius:50%;background:#C9CDE0}
+.mock-top i:first-child{background:var(--accent)}
+.mock-top span{margin-left:10px;font-size:11px;color:var(--muted);letter-spacing:.06em}
+.mock-body{display:grid;grid-template-columns:118px 1fr;min-height:360px}
+.mock-side{background:var(--blue-3);color:#fff;padding:14px 0;font-size:11.5px}
+.mock-side div{padding:8px 16px;opacity:.6}
+.mock-side div.on{opacity:1;background:rgba(255,255,255,.1);box-shadow:inset 3px 0 0 var(--accent)}
+.mock-main{padding:18px 18px 20px;display:grid;gap:14px;align-content:start}
+.mock-h{display:flex;justify-content:space-between;align-items:baseline}
+.mock-h b{font-family:"Zen Kaku Gothic New",sans-serif;font-size:14px}
+.mock-h span{font-size:10px;color:var(--muted);letter-spacing:.08em}
+.pipe{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+.pipe div{background:var(--paper);padding:9px 6px 8px;text-align:center}
+.pipe small{display:block;font-size:9.5px;color:var(--muted);white-space:nowrap}
+.pipe b{font-family:"Outfit",sans-serif;font-weight:500;font-size:20px;line-height:1.2;color:var(--blue)}
+.pipe div:nth-child(6){background:var(--blue);color:#fff}
+.pipe div:nth-child(6) small{color:var(--on-blue)}
+.pipe div:nth-child(6) b{color:#fff}
+.mock-2{display:grid;grid-template-columns:1.2fr 1fr;gap:12px}
+.card-m{border:1px solid var(--line);padding:12px 12px 14px}
+.card-m .ttl{font-size:10.5px;color:var(--muted);letter-spacing:.06em;margin-bottom:10px}
+.bars{display:grid;gap:7px}
+.bars div{display:grid;grid-template-columns:52px 1fr;align-items:center;gap:8px;font-size:10px;color:var(--ink-2)}
+.bars div i{display:block;height:8px;background:var(--paper-2);position:relative}
+.bars div i::after{content:"";position:absolute;inset:0 auto 0 0;width:var(--v);background:var(--blue)}
+.gauge{display:flex;align-items:flex-end;gap:10px}
+.gauge b{font-family:"Outfit",sans-serif;font-weight:300;font-size:40px;line-height:1;color:var(--blue)}
+.gauge span{font-size:10px;color:var(--muted);line-height:1.5;padding-bottom:4px}
+.gauge span em{font-style:normal;color:#1F8A5B;font-weight:700}
+.spark{display:flex;align-items:flex-end;gap:4px;height:34px;margin-top:10px}
+.spark i{flex:1;background:var(--paper-2);height:var(--h)}
+.spark i:last-child{background:var(--accent)}
+.mock-cap{margin:12px 0 0;font-size:11.5px;color:var(--on-blue-2);text-align:right}
+
+/* ---------- details ---------- */
+.det{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:2px solid var(--ink)}
+.det>div{padding:30px 28px 34px 0;border-right:1px solid var(--line)}
+.det>div+div{padding-left:28px}
+.det>div:last-child{border-right:0}
+.det h3{font-family:"Zen Kaku Gothic New",sans-serif;font-weight:700;font-size:17px;margin:0 0 16px;letter-spacing:.04em;display:flex;align-items:center;gap:10px}
+.det h3::before{content:"";width:14px;height:2px;background:var(--accent)}
+.det ul{margin:0;padding:0;list-style:none;font-size:14.5px;color:var(--ink-2)}
+.det li{padding:10px 0;border-bottom:1px dashed var(--line);line-height:1.75}
+.det li:last-child{border-bottom:0}
+.det dl{margin:0;font-size:14.5px}
+.det dl div{display:grid;grid-template-columns:64px 1fr;gap:10px;padding:10px 0;border-bottom:1px dashed var(--line)}
+.det dl div:last-child{border-bottom:0}
+.det dt{color:var(--muted);font-size:12.5px;padding-top:2px}
+.det dd{margin:0;color:var(--ink)}
+
+/* ---------- cta ---------- */
+.cta{text-align:center;padding:128px 0 120px;overflow:hidden}
+.cta::before{content:"11.14";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-family:"Outfit",sans-serif;font-weight:200;
+  font-size:clamp(160px,34vw,460px);line-height:1;color:transparent;-webkit-text-stroke:1px rgba(255,255,255,.08);pointer-events:none;white-space:nowrap}
+.cta .wrap{position:relative}
+.cta .cap{display:inline-block;font-family:"Outfit",sans-serif;font-size:11px;letter-spacing:.3em;color:var(--accent);margin-bottom:20px}
+.cta h2{font-family:"Zen Kaku Gothic New",sans-serif;font-weight:700;font-size:clamp(28px,4.6vw,46px);margin:0 0 18px;letter-spacing:.03em;line-height:1.45}
+.cta p{color:var(--on-blue);font-size:15px;margin:0 0 36px}
+.cta .seats{display:inline-flex;gap:6px;margin:0 0 34px}
+.cta .seats i{width:14px;height:14px;border:1.5px solid rgba(255,255,255,.55)}
+.btn{font:inherit;font-size:16px;font-weight:700;padding:18px 44px;border:1px solid var(--accent);background:var(--accent);color:var(--blue-3);cursor:pointer;transition:.2s;text-decoration:none;display:inline-flex;align-items:center;gap:14px}
+.btn::after{content:"→";font-family:"Outfit",sans-serif;font-weight:400;transition:transform .2s}
+.btn:hover{background:#fff;border-color:#fff}
+.btn:hover::after{transform:translateX(4px)}
+.btn:focus-visible{outline:2px solid #fff;outline-offset:3px}
+.hint{font-size:12.5px;color:var(--on-blue);margin:18px 0 0}
+
+/* ---------- memo / footer ---------- */
+.draft{border:1px dashed var(--accent);padding:26px 28px;background:#fff}
+.draft h3{font-family:"Outfit",sans-serif;font-size:11px;letter-spacing:.2em;color:var(--accent);margin:0 0 16px;text-transform:uppercase}
+.draft ul{margin:0;padding-left:1.2em;font-size:14px;color:var(--ink-2)}
+.draft li{margin-bottom:8px}
+.draft code{font-size:12.5px;background:var(--paper-2);padding:1px 5px}
+footer{padding:54px 0 70px;font-size:12.5px;color:var(--on-blue-2);border-top:1px solid var(--rule)}
+footer .f{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap}
+footer b{font-family:"Zen Kaku Gothic New",sans-serif;font-weight:700;font-size:22px;color:#fff;letter-spacing:.14em;display:block;margin-bottom:6px}
+
+/* ---------- reveal ---------- */
+.rv{opacity:0;transform:translateY(26px);transition:opacity .85s cubic-bezier(.19,1,.22,1),transform .85s cubic-bezier(.19,1,.22,1)}
+.rv.in{opacity:1;transform:none}
+.rv.d1{transition-delay:.08s}.rv.d2{transition-delay:.16s}
+
+@media (prefers-reduced-motion:reduce){
+  .rv,.statement .l i,.hero-core>*{transition:none!important;opacity:1!important;transform:none!important}
+  .mq .track{animation:none}
+  .cue::after{animation:none}
+  .intro{display:none}
+  .intro-word span{animation:none}
+  #scatter .chip,.hero-brand,.cue{opacity:1!important}
+  .mock{transform:none}
+  html{scroll-behavior:auto}
+}
+
+@media (max-width:980px){
+  .tool{grid-template-columns:1fr;gap:48px}
+  .mock{transform:none}
+  .st-grid{grid-template-columns:1fr;gap:40px}
+  .tt li{grid-template-columns:120px 1fr}
+  .tt .len{display:none}
+  .bar nav{display:none}
+}
+@media (max-width:820px){
+  section{padding:80px 0}
+  .statement{padding:92px 0 80px}
+  .chip{width:142px;padding:10px 12px}
+  #scatter .chip:nth-child(n+7){display:none}
+  .shead{gap:0 16px;margin-bottom:40px}
+  .issues,.det{grid-template-columns:1fr}
+  .issue,.issue+.issue,.det>div,.det>div+div{padding:28px 0 30px;border-right:0;border-bottom:1px solid var(--line)}
+  .spk{grid-template-columns:1fr}
+  .spk article{padding:30px 24px 32px}
+  .tt li{grid-template-columns:1fr;gap:4px;padding:20px 0}
+  .tt li.work{margin:0 -28px;padding-left:28px;padding-right:28px}
+  .mods{grid-template-columns:1fr}
+}
+@media (max-width:640px){
+  .wrap{padding:0 20px}
+  .chip{width:132px}
+  .intro-scatter .chip:nth-child(n+6){display:none}
+  #scatter .chip:nth-child(n+5){display:none}
+  #scatter .chip:nth-child(1){left:3%!important;top:12%!important}
+  #scatter .chip:nth-child(2){left:auto!important;right:3%;top:20%!important}
+  #scatter .chip:nth-child(3){left:4%!important;top:78%!important}
+  #scatter .chip:nth-child(4){left:auto!important;right:4%;top:68%!important}
+  .meta{grid-template-columns:1fr}
+  .meta div:nth-child(odd){border-right:0}
+  .bar{padding:10px 16px}
+  .bar span{display:none}
+  .mock-body{grid-template-columns:1fr}
+  .mock-side{display:none}
+  .pipe{grid-template-columns:repeat(3,1fr)}
+  .mock-2{grid-template-columns:1fr}
+  .tt li.work{margin:0 -20px;padding-left:20px;padding-right:20px}
+  .flow span{font-size:13px;padding:11px 2px}
+}
+
+/* ================= マーケティング回（付箋 × AI）追加 ================= */
+:root{--line-green:#06C755;--s-y:#FFE58A;--s-p:#FFC2CF;--s-b:#B9DDFF;--s-g:#C6EDB8;--s-o:#FFD3A8}
+/* 付箋 */
+.chip{width:176px;padding:17px 15px 18px;border-radius:2px;box-shadow:0 16px 28px -16px rgba(6,10,50,.6),0 2px 0 rgba(0,0,0,.04)}
+.chip::before{content:"";position:absolute;top:-9px;left:50%;width:48px;height:17px;background:rgba(255,255,255,.55);transform:translateX(-50%) rotate(-3deg);box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.chip .k{color:rgba(15,20,64,.62);font-size:10px}
+.chip .n{font-size:13px;font-weight:700;line-height:1.55;color:var(--ink)}
+.chip .l{display:none}
+.chip .n{word-break:auto-phrase}
+.hero-core .theme{flex-wrap:wrap;justify-content:center;max-width:92vw}
+.hero-core .theme .nb,.nb{display:inline-block}
+.chip.y{background:var(--s-y)}.chip.p{background:var(--s-p)}.chip.b{background:var(--s-b)}.chip.g{background:var(--s-g)}.chip.o{background:var(--s-o)}
+/* HOW：3ステップ */
+.how{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;counter-reset:how}
+.how>div{background:#fff;border:1px solid var(--line);display:flex;flex-direction:column}
+.how .vis{height:210px;position:relative;overflow:hidden;background:var(--paper-2);border-bottom:1px solid var(--line)}
+.how .txt{padding:24px 24px 28px}
+.how .txt small{font-family:"Outfit",sans-serif;font-size:11.5px;letter-spacing:.24em;color:var(--accent);display:block;margin-bottom:10px}
+.how h3{font-family:"Zen Kaku Gothic New",sans-serif;font-weight:700;font-size:21px;line-height:1.5;margin:0 0 10px;word-break:auto-phrase}
+.how p{margin:0;font-size:14px;color:var(--ink-2);line-height:1.95}
+/* 視覚1：散らばった付箋 */
+.v1 i{position:absolute;width:62px;height:52px;border-radius:2px;box-shadow:0 6px 10px -6px rgba(6,10,50,.5)}
+.v1 i::after{content:"";position:absolute;left:9px;right:12px;top:14px;height:3px;background:rgba(15,20,64,.28);box-shadow:0 9px 0 rgba(15,20,64,.2),0 18px 0 rgba(15,20,64,.14);border-radius:2px}
+/* 視覚2：スマホで撮影→AI */
+.v2{display:flex;align-items:center;justify-content:center;gap:16px}
+.v2 .phone{width:86px;height:156px;border-radius:16px;background:var(--ink);padding:9px 6px;box-shadow:0 18px 30px -18px rgba(6,10,50,.7)}
+.v2 .phone div{width:100%;height:100%;border-radius:10px;background:#fff;position:relative;overflow:hidden}
+.v2 .phone div i{position:absolute;width:24px;height:20px;border-radius:2px}
+.v2 .arr{font-family:"Outfit",sans-serif;font-size:24px;color:var(--accent)}
+.v2 .ai{width:84px;height:84px;border-radius:50%;background:var(--blue);color:#fff;display:grid;place-items:center;font-family:"Outfit",sans-serif;font-weight:500;font-size:22px;letter-spacing:.06em;box-shadow:0 0 0 10px rgba(27,42,160,.1),0 0 0 22px rgba(27,42,160,.05)}
+/* 視覚3：整理された表 */
+.v3{padding:22px 18px}
+.v3 .g{display:grid;grid-template-columns:44px repeat(4,1fr);gap:4px;height:100%}
+.v3 .g span{background:#fff;border-radius:2px;position:relative}
+.v3 .g span.h{background:var(--blue)}
+.v3 .g span.r{background:var(--ink-2);opacity:.85}
+.v3 .g span.c::after{content:"";position:absolute;left:5px;right:7px;top:7px;height:2px;background:var(--line);box-shadow:0 6px 0 var(--line)}
+.v3 .g span.y{background:var(--s-y)}.v3 .g span.p{background:var(--s-p)}.v3 .g span.b{background:var(--s-b)}.v3 .g span.gg{background:var(--s-g)}
+/* レーンの説明 */
+.lanes{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule)}
+.lanes div{background:var(--blue-2);padding:22px 18px 24px}
+.lanes b{display:flex;align-items:center;gap:9px;font-family:"Zen Kaku Gothic New",sans-serif;font-size:17px;margin-bottom:8px}
+.lanes b i{width:14px;height:14px;border-radius:2px;flex:none}
+.lanes span{font-size:13px;color:var(--on-blue);line-height:1.85;display:block}
+.basis{display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:start;margin-top:40px;padding-top:34px;border-top:1px solid var(--rule)}
+.basis h3{font-family:"Zen Kaku Gothic New",sans-serif;font-weight:700;font-size:19px;margin:0;line-height:1.6;white-space:nowrap}
+.basis ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.basis li{border:1px solid var(--rule);padding:16px 18px}
+.basis li b{display:block;font-size:15px;margin-bottom:4px;color:#fff}
+.basis li span{font-size:12.5px;color:var(--on-blue);line-height:1.8;display:block}
+/* 講師（1名） */
+.spk.one{grid-template-columns:1fr}
+.spk.one article{display:grid;grid-template-columns:.8fr 1.2fr;gap:0 44px;align-items:start}
+.spk.one .talk{border-top:0;padding-top:0}
+.spk.one .tags{grid-column:1}
+/* 特典 */
+.gift{display:grid;grid-template-columns:.9fr 1.1fr;gap:56px;align-items:center}
+.gift-copy .badge{display:inline-flex;align-items:center;gap:10px;background:var(--line-green);color:#fff;font-family:"Zen Kaku Gothic New",sans-serif;font-weight:700;font-size:13px;letter-spacing:.12em;padding:7px 16px;margin-bottom:22px}
+.gift-copy h3{font-family:"Zen Kaku Gothic New",sans-serif;font-weight:700;font-size:clamp(24px,3.2vw,34px);line-height:1.5;margin:0 0 18px;word-break:auto-phrase}
+.gift-copy h3 em{font-style:normal;color:var(--accent)}
+.gift-copy p{color:var(--on-blue);font-size:15px;margin:0 0 26px}
+.lsteps{list-style:none;margin:0;padding:0;border-top:1px solid var(--rule)}
+.lsteps li{display:grid;grid-template-columns:52px 1fr;gap:14px;align-items:center;padding:16px 0;border-bottom:1px solid var(--rule)}
+.lsteps li i{font-style:normal;font-family:"Outfit",sans-serif;font-weight:300;font-size:30px;line-height:1;color:var(--accent)}
+.lsteps li b{display:block;font-family:"Zen Kaku Gothic New",sans-serif;font-size:16px;line-height:1.5}
+.lsteps li span{font-size:13px;color:var(--on-blue);line-height:1.7}
+/* 見本マップ */
+.gift>div{min-width:0}
+.cjm{background:#fff;color:var(--ink);box-shadow:0 50px 90px -40px rgba(0,0,0,.65);position:relative;max-width:100%;overflow:hidden}
+.cjm-top{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:14px 16px;border-bottom:1px solid var(--line);background:var(--paper)}
+.cjm-top b{font-family:"Zen Kaku Gothic New",sans-serif;font-size:13.5px}
+.cjm-top span{font-family:"Outfit",sans-serif;font-size:10px;letter-spacing:.16em;color:var(--muted)}
+.cjm-body{padding:12px 14px 16px;position:relative}
+.cjm table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:10.5px;line-height:1.55}
+.cjm th,.cjm td{border:1px solid var(--line);padding:6px 6px;vertical-align:top;text-align:left}
+.cjm thead th{background:var(--blue);color:#fff;font-weight:700;font-size:10px;line-height:1.4}
+.cjm tbody th{background:var(--paper-2);color:var(--ink-2);font-weight:700;width:58px;font-size:10px}
+.cjm td{color:var(--ink);background:#fff}
+.cjm td.emo{padding:0;height:72px}
+.cjm td.emo svg{display:block;width:100%;height:72px}
+.cjm .open{background:#fff}
+.cjm .shut{filter:blur(3.2px);opacity:.75;user-select:none}
+.cjm-veil{position:absolute;left:0;right:0;bottom:0;top:46%;background:linear-gradient(180deg,rgba(255,255,255,0) 0%,rgba(255,255,255,.92) 42%,#fff 100%);display:flex;align-items:flex-end;justify-content:center;padding-bottom:26px}
+.cjm-veil span{font-family:"Zen Kaku Gothic New",sans-serif;font-weight:700;font-size:14px;color:var(--ink);background:#fff;border:1px solid var(--line);padding:9px 18px;box-shadow:0 10px 20px -12px rgba(6,10,50,.4)}
+.cjm-veil span::before{content:"";display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--line-green);margin-right:9px;vertical-align:1px}
+.gift-cap{margin:12px 0 0;font-size:11.5px;color:var(--on-blue-2);text-align:right}
+/* LINE ボタン */
+.btn-line{background:var(--line-green);border-color:var(--line-green);color:#fff}
+.btn-line:hover{background:#fff;border-color:#fff;color:#067A36}
+.bar .mini.line{background:var(--line-green);color:#fff}
+/* 個人情報の注記 */
+.privacy{margin:36px 0 0;display:flex;gap:14px;align-items:flex-start;background:#fff;border:1px solid var(--line);border-left:4px solid var(--blue);padding:18px 22px;font-size:14px;color:var(--ink-2);line-height:1.9}
+.privacy b{color:var(--ink)}
+@media (max-width:980px){
+  .gift{grid-template-columns:1fr;gap:44px}
+  .lanes{grid-template-columns:repeat(2,1fr)}
+  .lanes div:last-child{grid-column:span 2}
+  .spk.one article{grid-template-columns:1fr}
+  .spk.one .talk{margin-top:26px;padding-top:22px;border-top:1px solid var(--rule)}
+  .basis{grid-template-columns:1fr;gap:16px}
+}
+@media (max-width:820px){
+  .how{grid-template-columns:1fr}
+  .basis ul{grid-template-columns:1fr}
+}
+@media (max-width:640px){
+  .chip{width:128px;padding:13px 11px 14px}
+  .chip .n{font-size:11.5px}
+  .lanes{grid-template-columns:1fr}
+  .lanes div:last-child{grid-column:auto}
+  .cjm-body{overflow:hidden}
+  .cjm table{font-size:10px;width:600px;max-width:none}
+  .cjm tbody th{width:48px}
+}
+</style>
+
+<div class="intro" id="intro" aria-label="オープニング">
+  <div class="intro-word"><span>医師コミュ</span></div>
+  <div class="intro-scatter" id="introScatter"></div>
+  <div class="intro-foot">
+    <span>VOL.01 &mdash; KANAZAWA</span>
+    <button class="skip" id="skipBtn" type="button">ENTER</button>
+  </div>
+  <div class="intro-bar"><i></i></div>
+</div>
+
+<div class="bar" id="bar" aria-hidden="true">
+  <div class="b1"><b>医師コミュ</b><span>Vol.01 ／ 11.14 SAT ／ 金沢勤労者プラザ</span></div>
+  <nav><a href="#how">つくるもの</a><a href="#speakers">話す人</a><a href="#program">当日の流れ</a><a href="#gift">LINE特典</a><a href="#details">開催概要</a></nav>
+  <a class="mini line" href="#line">LINEで受け取る</a>
+</div>
+
+<header class="hero" id="top">
+  <div class="hero-brand">
+    <b class="zen">医師コミュ</b>
+    <span class="out">Vol.01 / Kanazawa</span>
+  </div>
+  <div class="scatter" id="scatter"></div>
+  <div class="hero-core">
+    <div><span class="theme"><span><span class="nb">付箋とAIでつくる、</span><span class="nb">患者さんの地図</span></span><i>VOL.01</i></span></div>
+    <span class="d">11.14</span>
+    <div class="sub">2026 &nbsp;Saturday&nbsp; 13:00–16:00</div>
+    <div class="venue">金沢勤労者プラザ</div>
+  </div>
+  <div class="cue out">SCROLL</div>
+</header>
+
+<div class="mq"><div class="track"><span>カスタマージャーニーマップ</span><span>カスタマージャーニーマップ</span><span>カスタマージャーニーマップ</span><span>カスタマージャーニーマップ</span><span>カスタマージャーニーマップ</span><span>カスタマージャーニーマップ</span></div></div>
+<div class="mq rev"><div class="track"><span>付箋 × AI</span><span>付箋 × AI</span><span>付箋 × AI</span><span>付箋 × AI</span><span>付箋 × AI</span><span>付箋 × AI</span><span>付箋 × AI</span><span>付箋 × AI</span></div></div>
+
+<section class="blue statement" id="st">
+  <div class="wrap">
+    <h1>
+      <span class="l"><i>患者さんは、</i></span>
+      <span class="l"><i>来院する前から</i></span>
+      <span class="l"><i>医院を<span class="em">選んでいる</span>。</i></span>
+    </h1>
+    <div class="st-grid">
+      <p class="rv">どこで困りごとに気づき、何を調べ、何を決め手に予約したのか。医院のマーケティングは、広告やSNSの前に、患者さんのこの「道のり」を知ることから始まります。前半は、現役の院長が、医院経営の全体像と、院長の視点から見たマーケティングをお話しします。後半は、付箋を使って患者さんの道のりを書き出し、その付箋を撮影してAIに読み込ませ、整理された「カスタマージャーニーマップ」に仕上げるところまで、参加者の皆さんと一緒に手を動かします。</p>
+      <dl class="meta rv d1">
+        <div><dt>Date</dt><dd class="out">2026.11.14 <small>(土)</small></dd></div>
+        <div><dt>Time</dt><dd class="out">13:00 – 16:00</dd></div>
+        <div><dt>Venue</dt><dd>金沢勤労者プラザ</dd></div>
+        <div><dt>Capacity</dt><dd>10名程度</dd></div>
+      </dl>
+    </div>
+  </div>
+</section>
+
+<section class="paper" id="how">
+  <div class="wrap">
+    <div class="shead rv">
+      <span class="idx">01</span>
+      <p class="eyebrow">What you make</p>
+      <h2>付箋から、AIで地図にする</h2>
+    </div>
+    <p class="lead rv">手で書き出す良さと、AIで整理する速さ。その両方を、3つのステップで体験します。</p>
+    <div class="how">
+      <div class="rv">
+        <div class="vis v1" aria-hidden="true">
+          <i style="left:12%;top:16%;background:var(--s-y);transform:rotate(-7deg)"></i>
+          <i style="left:40%;top:10%;background:var(--s-p);transform:rotate(5deg)"></i>
+          <i style="left:68%;top:20%;background:var(--s-b);transform:rotate(-3deg)"></i>
+          <i style="left:22%;top:52%;background:var(--s-g);transform:rotate(4deg)"></i>
+          <i style="left:52%;top:46%;background:var(--s-y);transform:rotate(-5deg)"></i>
+          <i style="left:74%;top:60%;background:var(--s-o);transform:rotate(6deg)"></i>
+          <i style="left:6%;top:74%;background:var(--s-p);transform:rotate(-2deg)"></i>
+          <i style="left:42%;top:76%;background:var(--s-b);transform:rotate(3deg)"></i>
+        </div>
+        <div class="txt"><small>STEP 01</small><h3>付箋で、患者さんの道のりを書き出す</h3><p>困りごとに気づいてから、来院し、通い続けるまで。患者さんの行動や気持ち、接点を、1枚に1つずつ付箋に書いて貼り出します。</p></div>
+      </div>
+      <div class="rv d1">
+        <div class="vis v2" aria-hidden="true">
+          <div class="phone"><div>
+            <i style="left:10%;top:12%;background:var(--s-y)"></i><i style="left:48%;top:8%;background:var(--s-p)"></i>
+            <i style="left:20%;top:40%;background:var(--s-b)"></i><i style="left:56%;top:44%;background:var(--s-g)"></i>
+            <i style="left:12%;top:70%;background:var(--s-o)"></i><i style="left:50%;top:74%;background:var(--s-y)"></i>
+          </div></div>
+          <span class="arr">→</span>
+          <span class="ai">AI</span>
+        </div>
+        <div class="txt"><small>STEP 02</small><h3>付箋を撮影して、AIに読み込ませる</h3><p>貼り出した付箋をスマートフォンで撮影し、画像のままAIに渡します。手書きの文字を読み取り、段階ごと・項目ごとに振り分けてもらいます。</p></div>
+      </div>
+      <div class="rv d2">
+        <div class="vis v3" aria-hidden="true">
+          <div class="g">
+            <span class="r"></span><span class="h"></span><span class="h"></span><span class="h"></span><span class="h"></span>
+            <span class="r"></span><span class="c y"></span><span class="c"></span><span class="c y"></span><span class="c"></span>
+            <span class="r"></span><span class="c"></span><span class="c p"></span><span class="c"></span><span class="c p"></span>
+            <span class="r"></span><span class="c b"></span><span class="c"></span><span class="c b"></span><span class="c"></span>
+            <span class="r"></span><span class="c"></span><span class="c gg"></span><span class="c"></span><span class="c gg"></span>
+          </div>
+        </div>
+        <div class="txt"><small>STEP 03</small><h3>整理されたマップに仕上げて、持ち帰る</h3><p>AIが整えた表を見ながら、抜けている視点や、改善できそうな接点を話し合います。自院で続けて使える形にして、お持ち帰りいただきます。</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="blue" id="cjm">
+  <div class="wrap">
+    <div class="shead rv">
+      <span class="idx">02</span>
+      <p class="eyebrow">Customer Journey Map</p>
+      <h2>カスタマージャーニーマップとは</h2>
+    </div>
+    <p class="lead rv">患者さんが医院を知り、来院し、通い続けるまでを「段階」に分け、それぞれの段階で起きていることを、次の5つの項目で整理した表です。</p>
+    <div class="lanes rv">
+      <div><b><i style="background:var(--s-y)"></i>行動</b><span>患者さんが、実際にしていること</span></div>
+      <div><b><i style="background:var(--s-p)"></i>思考・感情</b><span>そのとき、考えていること・感じていること</span></div>
+      <div><b><i style="background:var(--s-b)"></i>タッチポイント</b><span>医院との接点。ホームページ、口コミ、受付、LINEなど</span></div>
+      <div><b><i style="background:var(--s-o)"></i>課題</b><span>患者さんがつまずいている、迷っているところ</span></div>
+      <div><b><i style="background:var(--s-g)"></i>改善案</b><span>医院として、次に手を打てること</span></div>
+    </div>
+    <div class="basis rv d1">
+      <h3>付箋に、<br>「根拠」を添える</h3>
+      <ul>
+        <li><b>患者さんの声</b><span>問診票、アンケート、口コミなど、患者さんが実際に言ったこと・書いたこと</span></li>
+        <li><b>データ</b><span>予約数、アクセス数、再診率など、数字で確かめられること</span></li>
+        <li><b>スタッフの推測</b><span>現場の実感や仮説。悪いことではなく、これから確かめる対象です</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="blue" id="speakers" style="padding-top:0">
+  <div class="wrap">
+    <div class="shead rv">
+      <span class="idx">03</span>
+      <p class="eyebrow">Speakers</p>
+      <h2>話す人</h2>
+    </div>
+    <p class="lead rv">経営の全体像と、院長の目から見たマーケティングを聞いたうえで、自院の患者さんの道のりを描く。その順番で進めます。</p>
+    <div class="spk">
+      <article class="rv" data-no="01">
+        <div class="who">
+          <span class="mono" aria-hidden="true">宇</span>
+          <div>
+            <h3>宇賀治 修平</h3>
+            <p class="aff">さくら通り整形外科クリニック 院長</p>
+          </div>
+        </div>
+        <div class="talk">
+          <small>13:10 – 14:00 ／ 50 MIN</small>
+          <h4><span class="nb">院長の目から見た、</span><br><span class="nb">医院の経営と</span><span class="nb">マーケティング</span></h4>
+          <ul>
+            <li>医院経営の全体像。診療・人・お金・集患は、どうつながっているか</li>
+            <li>院長の視点から見た、医院のマーケティング</li>
+            <li>開院から今までの集患で、考えてきたこと</li>
+          </ul>
+        </div>
+        <div class="tags"><span>2023年 開院</span><span>整形外科専門医</span><span>日本スポーツ協会公認スポーツドクター</span></div>
+      </article>
+      <article class="rv d1" data-no="02">
+        <div class="who">
+          <span class="mono" aria-hidden="true">西</span>
+          <div>
+            <h3>西田 和志</h3>
+            <p class="aff">さくら通り整形外科クリニック COO</p>
+          </div>
+        </div>
+        <div class="talk">
+          <small>14:10 – 15:55 ／ 講義とワーク</small>
+          <h4><span class="nb">患者さんの体験から、</span><br><span class="nb">集患を考える</span></h4>
+          <ul>
+            <li>カスタマージャーニーマップの考え方と、医院で使うときのコツ</li>
+            <li>付箋ワークの進行。書き出し方と、貼り出し方</li>
+            <li>付箋の写真をAIに読み込ませ、マップに整える手順</li>
+            <li>できあがったマップから、次の一手を見つける</li>
+          </ul>
+        </div>
+        <div class="tags"><span>マーケティング</span><span>カスタマージャーニーマップ</span><span>AI活用</span></div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="paper" id="program">
+  <div class="wrap">
+    <div class="shead rv">
+      <span class="idx">04</span>
+      <p class="eyebrow">Program</p>
+      <h2>当日の流れ</h2>
+    </div>
+    <p class="lead rv">前半は院長の話で全体像をつかみ、後半のおよそ1時間半は、手を動かす時間です。聞いて帰るだけの会ではありません。</p>
+    <ul class="tt">
+      <li class="rv" style="--m:10"><span class="t">13:00 – 13:10</span><span><b>オープニング・自己紹介</b><span class="d">それぞれの立場と、今日持ち帰りたいことを共有</span></span><span class="len"><i></i><em>10 min</em></span></li>
+      <li class="rv key" style="--m:25"><span class="t">13:10 – 13:35</span><span><b>医院経営の全体像</b><span class="d"><span class="who">宇賀治 修平</span>診療・人・お金・集患が、医院の中でどうつながっているか</span></span><span class="len"><i></i><em>25 min</em></span></li>
+      <li class="rv key" style="--m:25"><span class="t">13:35 – 14:00</span><span><b>院長の視点から見た、医院のマーケティング</b><span class="d"><span class="who">宇賀治 修平</span>開院から今までの集患で、院長として考えてきたこと</span></span><span class="len"><i></i><em>25 min</em></span></li>
+      <li class="rv rest" style="--m:10"><span class="t">14:00 – 14:10</span><span><b>休憩</b></span><span class="len"><i></i><em>10 min</em></span></li>
+      <li class="rv key" style="--m:15"><span class="t">14:10 – 14:25</span><span><b>講義：カスタマージャーニーマップの考え方</b><span class="d"><span class="who">西田 和志</span>患者さんの道のりを、段階と項目に分けて見る方法</span></span><span class="len"><i></i><em>15 min</em></span></li>
+      <li class="rv key work" style="--m:45"><span class="t">14:25 – 15:10</span><span><b>ワーク①：付箋でマップを描く</b><span class="d">一番力を入れていきたい診療を受けている患者さんをお一人思い浮かべ、困りごとに気づいてから通い続けるまでを、付箋に書き出して貼り出す</span></span><span class="len"><i></i><em>45 min</em></span></li>
+      <li class="rv key work" style="--m:30"><span class="t">15:10 – 15:40</span><span><b>ワーク②：AIで、整理されたマップにする</b><span class="d">付箋をスマートフォンで撮影してAIに読み込ませ、段階と項目ごとに整った表に仕上げる</span></span><span class="len"><i></i><em>30 min</em></span></li>
+      <li class="rv" style="--m:15"><span class="t">15:40 – 15:55</span><span><b>共有・ディスカッション</b><span class="d">できあがったマップを見せ合い、院長も交えてほかの医院の視点を持ち帰る</span></span><span class="len"><i></i><em>15 min</em></span></li>
+      <li class="rv" style="--m:5"><span class="t">15:55 – 16:00</span><span><b>まとめ</b></span><span class="len"><i></i><em>5 min</em></span></li>
+    </ul>
+  </div>
+</section>
+
+<section class="deep" id="gift">
+  <div class="wrap">
+    <div class="shead rv">
+      <span class="idx">05</span>
+      <p class="eyebrow">LINE Gift</p>
+      <h2>LINE登録で、マップの一例をお届けします</h2>
+    </div>
+    <div class="gift">
+      <div class="gift-copy">
+        <span class="badge rv">LINE 登録特典</span>
+        <h3 class="rv">実際の医院で作った、<br><em>カスタマージャーニーマップ</em>の一例</h3>
+        <p class="rv">白紙から考えるより、完成した一枚を見てからのほうが、ぐっと描きやすくなります。当日の前に、どんな表ができあがるのかを、手元でご覧ください。セミナーの詳細とお申し込みの方法も、LINEでお送りします。</p>
+        <ol class="lsteps rv d1">
+          <li><i>01</i><div><b>公式LINEを友だち追加</b><span>下のボタンから、登録できます</span></div></li>
+          <li><i>02</i><div><b>特典のマップが届く</b><span>カスタマージャーニーマップの一例を、1つお送りします</span></div></li>
+          <li><i>03</i><div><b>セミナーの詳細とお申し込み</b><span>参加費や申込方法、当日使うAIや準備も、LINEでご案内します</span></div></li>
+        </ol>
+      </div>
+      <div class="rv d1">
+        <div class="cjm" role="img" aria-label="カスタマージャーニーマップの見本。7つの段階ごとに、患者さんの感情の変化と、行動・思考・感情などが整理されている。一部のみ表示">
+          <div class="cjm-top"><b>ひざの痛みで来院する患者さんのマップ</b><span>SAMPLE</span></div>
+          <div class="cjm-body">
+            <table>
+              <thead><tr><th></th><th>困りごと</th><th>情報収集</th><th>初診</th><th>治療・リハ</th><th>自宅</th><th>生活復帰</th><th>半年後</th></tr></thead>
+              <tbody>
+                <tr><th>感情</th><td class="emo" colspan="7"><svg viewBox="0 0 700 72" preserveAspectRatio="none" aria-hidden="true"><line x1="0" y1="36" x2="700" y2="36" stroke="#D3D7E8" stroke-dasharray="4 4"/><polyline points="50,60 150,42 250,12 350,24 450,18 550,6 650,12" fill="none" stroke="#FF5B38" stroke-width="3" vector-effect="non-scaling-stroke"/><g fill="#1B2AA0"><circle cx="50" cy="60" r="5"/><circle cx="150" cy="42" r="5"/><circle cx="250" cy="12" r="5"/><circle cx="350" cy="24" r="5"/><circle cx="450" cy="18" r="5"/><circle cx="550" cy="6" r="5"/><circle cx="650" cy="12" r="5"/></g></svg></td></tr>
+                <tr><th>行動</th><td>階段や正座がつらく、近所で注射を続ける</td><td>口コミとホームページを見比べる</td><td>説明を受けて、治療を決める</td><td class="shut">通院とリハビリを続ける</td><td class="shut">自宅で運動を続ける</td><td class="shut">外出の機会が増える</td><td class="shut">ほかの悩みも相談する</td></tr>
+                <tr><th>思考・感情</th><td>「通っているのに、変わらない」</td><td>「手術の前に、できることは？」</td><td>「やっと話を聞いてもらえた」</td><td class="shut">「本当によくなるのか」</td><td class="shut">「痛みが少し残っていて不安」</td><td class="shut">「孫と出かけられた」</td><td class="shut">「ここなら任せられる」</td></tr>
+                <tr class="shut"><th>タッチポイント</th><td>家族との会話</td><td>Google・ホームページ</td><td>受付・診察</td><td>リハビリ室</td><td>公式LINE</td><td>再診</td><td>院内の掲示</td></tr>
+                <tr class="shut"><th>課題</th><td>治療の頭打ち感</td><td>情報が多すぎる</td><td>待ち時間</td><td>通院の負担</td><td>自宅で続かない</td><td>通院の間隔が空く</td><td>ほかのメニューを知らない</td></tr>
+                <tr class="shut"><th>改善案</th><td>ほかの選択肢を伝える</td><td>比べやすい情報に</td><td>初診の流れを見せる</td><td>次の目標を共有</td><td>LINEで運動を案内</td><td>経過を振り返る</td><td>院内で案内する</td></tr>
+              </tbody>
+            </table>
+            <div class="cjm-veil"><span>続きは、LINEでお届けします</span></div>
+          </div>
+        </div>
+        <p class="gift-cap">※ 画面は見本です。お届けするマップとは内容が異なる場合があります。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="paper" id="details">
+  <div class="wrap">
+    <div class="shead rv">
+      <span class="idx">06</span>
+      <p class="eyebrow">Details</p>
+      <h2>対象と開催概要</h2>
+    </div>
+    <div class="det rv">
+      <div>
+        <h3>こんな方へ</h3>
+        <ul>
+          <li>集患や広報を、患者さんの目線から考え直したい院長</li>
+          <li>ホームページやSNSを担当している、医院のスタッフ</li>
+          <li>AIを業務に取り入れてみたいが、何から始めればよいか迷っている方</li>
+        </ul>
+      </div>
+      <div>
+        <h3>開催概要</h3>
+        <dl>
+          <div><dt>日時</dt><dd>2026年11月14日（土）<br>13:00〜16:00</dd></div>
+          <div><dt>会場</dt><dd>金沢勤労者プラザ</dd></div>
+          <div><dt>定員</dt><dd>10名程度（1医院につき2名まで）</dd></div>
+          <div><dt>参加費</dt><dd>LINEでご案内します</dd></div>
+          <div><dt>懇親会</dt><dd>なし</dd></div>
+        </dl>
+      </div>
+      <div>
+        <h3>ご準備いただくもの</h3>
+        <ul>
+          <li>ノートパソコン（AIの操作に使います）</li>
+          <li>スマートフォン（付箋の撮影に使います）</li>
+          <li>自院で<b>これから一番力を入れていきたい診療</b>を1つ決め、その診療を受けている患者さんを、お一人思い浮かべてきてください</li>
+          <li>付箋とペンは、会場でご用意します</li>
+          <li>使用するAIや事前の準備は、LINEでご案内します</li>
+        </ul>
+      </div>
+    </div>
+    <div class="privacy rv">
+      <div><b>実在の患者さんの個人情報は扱いません。</b>ワークでは、氏名やカルテの内容など、個人が特定できる情報は付箋に書かず、AIにも入力しません。「こういう患者さんが多い」という、よくある姿を想定して進めます。</div>
+    </div>
+  </div>
+</section>
+
+<section class="blue cta" id="line">
+  <div class="wrap narrow">
+    <span class="cap rv">LINE</span>
+    <h2 class="rv">まずは、LINEで受け取る。</h2>
+    <p class="rv">友だち追加で、カスタマージャーニーマップの一例をお届けします。<br>セミナーの詳細とお申し込みの方法も、LINEでご案内します。</p>
+    <div class="seats rv" aria-label="定員10名"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="rv"><a class="btn btn-line" id="lineBtn" href="#">LINEで友だち追加する</a></div>
+    <p class="hint rv" id="lineHint" hidden>※ 公式LINEのリンクは準備中です</p>
+  </div>
+</section>
+
+<footer class="blue">
+  <div class="wrap f">
+    <div>
+      <b class="zen">医師コミュ</b>
+      <p style="margin:0">Vol.01 ／ 2026年11月14日（土）13:00–16:00 ／ 金沢勤労者プラザ ／ 付箋とAIでつくる、患者さんの地図</p>
+    </div>
+    <a href="#top" style="color:var(--on-blue);text-decoration:none;font-family:Outfit,sans-serif;letter-spacing:.2em;font-size:11px">BACK TO TOP ↑</a>
+  </div>
+</footer>
+
+<script>
+const LINE_URL = ""; /* ← 公式LINEの友だち追加URLをここに貼るとボタンが有効になります */
+
+/* オープニングとヒーローに浮かぶ付箋（患者さんの道のりの例） */
+const TOPICS = [
+  {k:"行動",t:"階段がつらくて、<br>外出を控える",c:"y"},
+  {k:"思考・感情",t:"注射に通っても、<br>変わらない",c:"p"},
+  {k:"タッチポイント",t:"「膝 痛み 福井」で<br>検索する",c:"b"},
+  {k:"行動",t:"口コミを3件<br>読んでから決めた",c:"y"},
+  {k:"課題",t:"電話予約が<br>つながらない",c:"o"},
+  {k:"思考・感情",t:"初診の説明で、<br>やっと安心した",c:"p"},
+  {k:"行動",t:"家族に相談して<br>から予約した",c:"y"},
+  {k:"課題",t:"駐車場の場所が<br>わかりにくい",c:"o"},
+  {k:"改善案",t:"WEB予約の入口を<br>1つにする",c:"g"},
+  {k:"思考・感情",t:"待ち時間が<br>長くて不安",c:"p"},
+  {k:"タッチポイント",t:"公式LINEで<br>予約を確認",c:"b"},
+  {k:"改善案",t:"初診の流れを、<br>先に見せる",c:"g"}
+];
+const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const chipHTML = p => '<span class="k">'+p.k+'</span><span class="n">'+p.t+'</span><span class="l"></span>';
+
+/* ---------- opening screen ---------- */
+const INTRO_ONCE_PER_SESSION = true;   /* false にすると読み込むたびに毎回オープニングが流れます */
+const INTRO_MS = 2600;                 /* オープニングの表示時間（ミリ秒） */
+
+const intro=document.getElementById("intro");
+let introSeen=false;
+try{ introSeen = INTRO_ONCE_PER_SESSION && sessionStorage.getItem("ishikomyu-intro")==="1"; }catch(e){}
+
+let shuffleTimer=null;
+function endIntro(){
+  if(!intro || intro.classList.contains("out")) return;
+  clearInterval(shuffleTimer);
+  intro.classList.add("out");
+  intro.setAttribute("aria-hidden","true");
+  document.body.classList.remove("locked");
+  document.body.classList.add("booted");
+  setTimeout(()=>intro.classList.add("gone"),1150);
+  try{ sessionStorage.setItem("ishikomyu-intro","1"); }catch(e){}
+}
+
+if(!intro || introSeen || reduce){
+  if(intro){ intro.classList.add("gone"); intro.setAttribute("aria-hidden","true"); }
+  document.body.classList.remove("locked");
+  document.body.classList.add("booted");
+}else{
+  document.body.classList.add("locked");
+  scrollTo(0,0);
+  intro.style.setProperty("--introMs", INTRO_MS+"ms");
+  const ISPOTS=[{x:15,y:11},{x:34,y:29},{x:57,y:7},{x:74,y:24},{x:23,y:60},{x:45,y:73},{x:67,y:54},{x:81,y:76}];
+  const box=document.getElementById("introScatter");
+  const cells=ISPOTS.map((sp,i)=>{
+    const el=document.createElement("div");
+    el.className="chip";
+    el.style.left=sp.x+"%"; el.style.top=sp.y+"%"; el.style.opacity="0";
+    el.style.transform="rotate("+((i%2?1:-1)*(2+(i%4)))+"deg)";
+    box.appendChild(el); return el;
+  });
+  const paint=el=>{ const p=TOPICS[Math.floor(Math.random()*TOPICS.length)]; el.className="chip "+p.c; el.innerHTML=chipHTML(p); };
+  cells.forEach((el,i)=>{ paint(el); setTimeout(()=>{ el.style.opacity="1"; }, 90+i*80); });
+  shuffleTimer=setInterval(()=>{
+    for(let n=0;n<3;n++){
+      const el=cells[Math.floor(Math.random()*cells.length)];
+      el.style.opacity="0";
+      setTimeout(()=>{ paint(el); el.style.opacity="1"; },190);
+    }
+  },540);
+  setTimeout(endIntro, INTRO_MS);
+  intro.addEventListener("click",endIntro);
+  document.getElementById("skipBtn").addEventListener("click",e=>{e.stopPropagation();endIntro();});
+  addEventListener("keydown",function onKey(e){
+    if(e.key==="Enter"||e.key===" "||e.key==="Escape"){ removeEventListener("keydown",onKey); endIntro(); }
+  });
+}
+
+/* ---------- hero scatter ---------- */
+const SPOTS=[
+  {x: 4,y:14,r:-6,d:.45},{x:15,y:50,r: 4,d:.95},{x: 6,y:76,r:-3,d:.70},
+  {x:28,y: 8,r: 5,d:.58},{x:24,y:82,r:-5,d:1.10},{x:62,y:84,r: 3,d:.80},
+  {x:60,y: 9,r:-4,d:.66},{x:76,y:46,r: 6,d:1.00},{x:82,y:14,r:-3,d:.52},
+  {x:44,y:88,r: 4,d:.62},{x:84,y:74,r:-6,d:.90}
+];
+const scatter=document.getElementById("scatter");
+const PICK=[0,3,5,7,10,11,1,4,6,8,9];
+SPOTS.forEach((s,i)=>{
+  const el=document.createElement("div");
+  const p=TOPICS[PICK[i]%TOPICS.length];
+  el.className="chip "+p.c;
+  el.style.left=s.x+"%"; el.style.top=s.y+"%";
+  el.dataset.r=s.r; el.dataset.d=s.d;
+  el.style.transform="rotate("+s.r+"deg)";
+  el.style.transitionDelay=(i*55)+"ms";
+  el.innerHTML=chipHTML(p);
+  scatter.appendChild(el);
+});
+
+if(!reduce){
+  const chips=[...scatter.querySelectorAll(".chip")];
+  let mx=0,my=0,tx=0,ty=0,sy=0,raf=null;
+  addEventListener("pointermove",e=>{ mx=(e.clientX/innerWidth-.5)*2; my=(e.clientY/innerHeight-.5)*2; queue(); },{passive:true});
+  addEventListener("scroll",()=>{ sy=scrollY; queue(); },{passive:true});
+  function queue(){ if(!raf) raf=requestAnimationFrame(step); }
+  function step(){
+    raf=null;
+    tx+=(mx-tx)*.08; ty+=(my-ty)*.08;
+    chips.forEach(c=>{
+      const d=+c.dataset.d, r=+c.dataset.r;
+      const px=tx*-26*d, py=ty*-20*d + sy*-0.22*d;
+      c.style.transform="translate3d("+px.toFixed(2)+"px,"+py.toFixed(2)+"px,0) rotate("+r+"deg)";
+    });
+    if(Math.abs(mx-tx)>.001||Math.abs(my-ty)>.001) queue();
+  }
+  step();
+}
+
+/* ---------- sticky bar ---------- */
+const bar=document.getElementById("bar"), heroEl=document.getElementById("top");
+new IntersectionObserver(es=>{
+  const show=!es[0].isIntersecting;
+  bar.classList.toggle("show",show);
+  bar.setAttribute("aria-hidden", show ? "false" : "true");
+},{threshold:0}).observe(heroEl);
+
+/* ---------- reveal ---------- */
+const io=new IntersectionObserver(es=>{
+  es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add("in"); io.unobserve(e.target); } });
+},{threshold:.14,rootMargin:"0px 0px -8% 0px"});
+document.querySelectorAll(".rv,.statement").forEach(el=>io.observe(el));
+
+/* ---------- LINE button ---------- */
+const lineBtn=document.getElementById("lineBtn");
+if(LINE_URL){
+  lineBtn.href=LINE_URL; lineBtn.target="_blank"; lineBtn.rel="noopener";
+  document.querySelectorAll('a[href="#line"]').forEach(a=>{ a.href=LINE_URL; a.target="_blank"; a.rel="noopener"; });
+}else{
+  lineBtn.setAttribute("aria-disabled","true");
+  lineBtn.style.opacity=".5"; lineBtn.style.pointerEvents="none";
+  document.getElementById("lineHint").hidden=false;
+}
+</script>
