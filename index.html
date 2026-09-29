@@ -2,7 +2,7 @@
 <meta charset="utf-8">
 <meta name="robots" content="noindex,nofollow,noarchive">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>医師コミュ Vol.01｜付箋とAIでつくる、患者さんの地図</title>
+<title>いしこみゅ Vol.01｜付箋とAIでつくる、患者さんの地図</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=Noto+Sans+JP:wght@400;500;700&family=Outfit:wght@200;300;400;500;600&display=swap">
@@ -89,7 +89,7 @@ body.locked{overflow:hidden}
 .chip .k{font-family:"Zen Kaku Gothic New",sans-serif;font-weight:700;font-size:10.5px;letter-spacing:.14em;color:var(--accent);display:block;margin-bottom:4px}
 .chip .n{font-family:"Zen Kaku Gothic New",sans-serif;font-weight:500;font-size:12.5px;line-height:1.6;display:block}
 .chip .l{display:block;margin-top:8px;height:1px;background:var(--line)}
-.hero-core{position:relative;z-index:2;text-align:center;pointer-events:none;padding:0 20px}
+.hero-core{position:relative;z-index:4;text-align:center;pointer-events:none;padding:0 20px}
 .hero-core .theme{display:inline-flex;align-items:center;gap:12px;font-family:"Zen Kaku Gothic New",sans-serif;font-weight:700;
   font-size:clamp(14px,1.8vw,18px);letter-spacing:.2em;padding:9px 20px;background:var(--accent);color:var(--blue-3);margin-bottom:26px}
 .hero-core .theme i{font-style:normal;font-family:"Outfit",sans-serif;font-weight:500;font-size:.72em;letter-spacing:.24em;opacity:.8}
@@ -102,6 +102,15 @@ body.locked{overflow:hidden}
 @keyframes drop{0%{transform:scaleY(0)}45%{transform:scaleY(1)}100%{transform:scaleY(0);transform-origin:bottom}}
 
 /* boot-in */
+.hero-core .proof{position:relative;z-index:5;margin-top:22px;display:inline-flex;flex-direction:column;align-items:center;gap:10px;background:var(--blue-3);padding:14px 20px 12px;border-radius:14px;box-shadow:0 12px 30px -14px rgba(6,10,50,.8)}
+.hero-core .award{display:inline-flex;align-items:center;gap:8px;font-family:"Zen Kaku Gothic New",sans-serif;font-weight:700;font-size:clamp(12px,1.4vw,14px);letter-spacing:.08em;color:var(--blue-3);background:#fff;padding:7px 16px 7px 12px;border-radius:999px}
+.hero-core .award svg{width:18px;height:18px;flex:none}
+.hero-core .stats{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 18px;font-family:"Zen Kaku Gothic New",sans-serif;font-size:clamp(11px,1.3vw,13px);letter-spacing:.06em;color:rgba(255,255,255,.9)}
+.hero-core .stats b{font-family:"Outfit",sans-serif;font-weight:500;font-size:1.35em;color:#fff;margin:0 2px;letter-spacing:0}
+.hero-core .stats span+span{position:relative}
+.hero-core .proof small{font-size:10.5px;color:rgba(255,255,255,.6);letter-spacing:.08em}
+body.booted .hero-core>*:nth-child(5){transition-delay:.62s}
+@media (max-width:600px){.hero-core .proof{margin-top:16px;gap:8px}.hero-core .stats{flex-direction:column;gap:3px}}
 .hero-core>*{opacity:0;transform:translateY(22px);transition:opacity .9s ease,transform 1s cubic-bezier(.19,1,.22,1)}
 body.booted .hero-core>*{opacity:1;transform:none}
 body.booted .hero-core>*:nth-child(1){transition-delay:.15s}
@@ -460,7 +469,7 @@ footer b{font-family:"Zen Kaku Gothic New",sans-serif;font-weight:700;font-size:
 </style>
 
 <div class="intro" id="intro" aria-label="オープニング">
-  <div class="intro-word"><span>医師コミュ</span></div>
+  <div class="intro-word"><span>いしこみゅ</span></div>
   <div class="intro-scatter" id="introScatter"></div>
   <div class="intro-foot">
     <span>VOL.01 &mdash; KANAZAWA</span>
@@ -470,14 +479,14 @@ footer b{font-family:"Zen Kaku Gothic New",sans-serif;font-weight:700;font-size:
 </div>
 
 <div class="bar" id="bar" aria-hidden="true">
-  <div class="b1"><b>医師コミュ</b><span>Vol.01 ／ 11.14 SAT ／ 金沢勤労者プラザ</span></div>
+  <div class="b1"><b>いしこみゅ</b><span>Vol.01 ／ 11.14 SAT ／ 金沢勤労者プラザ</span></div>
   <nav><a href="#how">つくるもの</a><a href="#speakers">話す人</a><a href="#program">当日の流れ</a><a href="#gift">LINE特典</a><a href="#details">開催概要</a></nav>
   <a class="mini line" href="#line">LINEで受け取る</a>
 </div>
 
 <header class="hero" id="top">
   <div class="hero-brand">
-    <b class="zen">医師コミュ</b>
+    <b class="zen">いしこみゅ</b>
     <span class="out">Vol.01 / Kanazawa</span>
   </div>
   <div class="scatter" id="scatter"></div>
@@ -486,6 +495,11 @@ footer b{font-family:"Zen Kaku Gothic New",sans-serif;font-weight:700;font-size:
     <span class="d">11.14</span>
     <div class="sub">2026 &nbsp;Saturday&nbsp; 13:00–16:00</div>
     <div class="venue">金沢勤労者プラザ</div>
+    <div class="proof">
+      <span class="award"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="9" r="6" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8.5 13.5 7 22l5-3 5 3-1.5-8.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>船井総研 ブレイクスルー賞 受賞</span>
+      <div class="stats"><span>3年で <b>年間5万人</b> が来院するクリニックに成長</span><span>スタッフ <b>34</b>名</span><span>前年同期比 <b>20%</b>増で成長中</span></div>
+      <small>登壇院長のクリニック（さくら通り整形外科クリニック）の実績</small>
+    </div>
   </div>
   <div class="cue out">SCROLL</div>
 </header>
@@ -758,10 +772,11 @@ footer b{font-family:"Zen Kaku Gothic New",sans-serif;font-weight:700;font-size:
   </div>
 </section>
 
+
 <footer class="blue">
   <div class="wrap f">
     <div>
-      <b class="zen">医師コミュ</b>
+      <b class="zen">いしこみゅ</b>
       <p style="margin:0">Vol.01 ／ 2026年11月14日（土）13:00–16:00 ／ 金沢勤労者プラザ ／ 付箋とAIでつくる、患者さんの地図</p>
     </div>
     <a href="#top" style="color:var(--on-blue);text-decoration:none;font-family:Outfit,sans-serif;letter-spacing:.2em;font-size:11px">BACK TO TOP ↑</a>
